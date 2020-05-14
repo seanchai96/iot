@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  <title>Seat Utilization Analytics | Dashboard</title>
+  <!-- Tell the browser to be responsive to screen width -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="{{url_for('static', filename="plugins/fontawesome-free/css/all.min.css")}}">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <!-- Tempusdominus Bbootstrap 4 -->
+  <link rel="stylesheet" href="{{url_for('static', filename="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css")}}">
+
+  
+  <!-- iCheck -->
+  <link rel="stylesheet" href="{{url_for('static', filename="plugins/icheck-bootstrap/icheck-bootstrap.min.css")}}">
+  <!-- JQVMap -->
+  <link rel="stylesheet" href="{{url_for('static', filename="plugins/jqvmap/jqvmap.min.css")}}">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{{url_for('static', filename="dist/css/adminlte.min.css")}}">
+  <!-- overlayScrollbars -->
+  <link rel="stylesheet" href="{{url_for('static', filename="plugins/overlayScrollbars/css/OverlayScrollbars.min.css")}}">
+  <!-- Daterange picker -->
+  <link rel="stylesheet" href="{{url_for('static', filename="plugins/daterangepicker/daterangepicker.css")}}">
+  <!-- summernote -->
+  <link rel="stylesheet" href="{{url_for('static', filename="plugins/summernote/summernote-bs4.css")}}">
+  <!-- Google Font: Source Sans Pro -->
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+
+  <!-- custom style for schedule -->
+  <style>
+    .schedule-rows td {
+      width: 80px;
+      height: 20px;
+      margin: 3px;
+      padding: 5px;
+      background-color: #37872D; /*3498DB*/
+      cursor: pointer;
+    }
+
+    .schedule-rows td:first-child {
+      background-color: transparent;
+      text-align: right;
+      position: relative;
+    }
+    .schedule-rows .time-slot {border: 1px solid #E1E1E1;}
+    .schedule-header {text-align:center}
+
+    .schedule-rows td[data-selected],
+    .schedule-rows td[data-selecting] { background-color: #F54A4A; }
+
+    .schedule-rows td[data-disabled] { opacity: 0.55; }
+
+    #bookRoom td {font-size: 20px; padding: 10px 20px;}
+  </style>
+</head>
+<body class="hold-transition sidebar-mini layout-fixed" onload="loadGraphs()">
+<div class="wrapper">
+
+
+<script src="{{url_for('static', filename="test.js") }}"> </script>
+
+  <!-- Main Sidebar Container -->
+  <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Sidebar Menu -->
+      <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+          <!-- Add icons to the links using the .nav-icon class
+               with font-awesome or any other icon font library -->
+          <li class="nav-item has-treeview menu-open">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-tachometer-alt"></i>
+              <p>
+                Overview
+                <i class="right fas fa-restaurant-chair-left"></i>
+              </p>
+            </a>
+          </li>
+
+
+
+        <li class="nav-item has-treeview">
+            <a onclick="log_in()" class="nav-link">
+              <i class="fas fa-users-cog"></i>
+              <p>
+                Admin Panel
+              </p>
+            </a>
+         
+        </li>
+
+          <li class="nav-header">LABELS</li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon far fa-circle text-danger"></i>
+              <p class="text">Occupied</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon far fa-circle text-warning"></i>
+              <p>Seat Hogging</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon far fa-circle text-success"></i>
+              <p>Empty</p>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <!-- /.sidebar-menu -->
+    </div>
+    <!-- /.sidebar -->
+  </aside>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0 text-dark">User Space</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="#">User</a></li>
+              <li class="breadcrumb-item active">Dashboard</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <!-- Small boxes (Stat box) -->
+        <div class="row">
+          
+          <div class="col-lg-4 col-6">
+            <!-- small box -->
+            <div class="small-box bg-success">
+              <div class="inner">
+                <h3 id="empty_seats">NA</h3>
+
+                <p>Empty Seats</p>
+              </div>
+              <div class="icon">
+                <i class="fas fa-chair"></i>
+              </div>
+            </div>
+          </div>
+          <!-- ./col -->
+          <div class="col-lg-4 col-6">
+            <!-- small box -->
+            <div class="small-box bg-warning">
+              <div class="inner">
+                <h3 id="hogged_seats">NA</h3>
+
+                <p>Hogged Seats</p>
+              </div>
+              <div class="icon">
+                <i class="fas fa-chair"></i>
+              </div>
+            </div>
+          </div>
+          <!-- ./col -->
+          <div class="col-lg-4 col-6">
+            <!-- small box -->
+            <div class="small-box bg-danger">
+              <div class="inner">
+                <h3 id="occupied_seats">NA</h3>
+
+                <p>Occupied Seats</p>
+              </div>
+              <div class="icon">
+                <i class="fas fa-chair"></i>
+              </div>
+            </div>
+          </div>
+          <!-- ./col -->
+        </div>
+        <!-- /.row -->
+
+	<div class="row">
+	
+		<!-- Map card -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">
+                  <i class="fas fa-chart-line mr-1"></i>
+                  Meeting Rooms
+                </h3>
+
+              </div><!-- /.card-header -->
+
+              <div class="card-body"> 
+	      <div class="row" style="color:white">              
+              <iframe class="col-lg-2" src="https://iot.77robinson.xyz/d-solo/6KkpLYlWk/herman-hollerith?orgId=1&refresh=30s&panelId=27" width="400" height="150" frameborder="0"></iframe>
+              <iframe class="col-lg-2" src="https://iot.77robinson.xyz/d-solo/6KkpLYlWk/herman-hollerith?orgId=1&refresh=30s&panelId=26" width="400" height="150" frameborder="0"></iframe>
+              <iframe class="col-lg-2" src="https://iot.77robinson.xyz/d-solo/6KkpLYlWk/herman-hollerith?orgId=1&refresh=30s&panelId=33" width="400" height="150" frameborder="0"></iframe>
+              
+              
+              <iframe class="col-lg-2" src="https://iot.77robinson.xyz/d-solo/6KkpLYlWk/herman-hollerith?orgId=1&refresh=30s&panelId=28"width="400" height="150" frameborder="0"></iframe>
+              <iframe class="col-lg-2" src="https://iot.77robinson.xyz/d-solo/6KkpLYlWk/herman-hollerith?orgId=1&refresh=30s&panelId=25" width="400" height="150" frameborder="0"></iframe>
+              <iframe class="col-lg-2" src="https://iot.77robinson.xyz/d-solo/6KkpLYlWk/herman-hollerith?orgId=1&refresh=30s&panelId=22" width="400" height="150" frameborder="0"></iframe>
+              </div>
+            </div>
+             
+
+            </div>
+	</div>
+
+
+
+        <!-- Main row -->
+        <div class="row">
+          <!-- LEFT COL -->
+          <section class="col-lg-8 connectedSortable">
+
+            <!-- LIVE SEAT UTILIZATION -->
+            <div class="card" style="height: 500px;">
+              <div class="card-header">
+                <h3 class="card-title">
+                  <i class="fas fa-chair mr-1"></i>
+                  Live Seat Utilization
+                </h3>
+                <div class="card-tools">
+                  <ul class="nav nav-pills ml-auto">
+                    <li class="nav-item">
+                      <a class="nav-link active" href="#map" data-toggle="tab">Area 1</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#map2" data-toggle="tab">Area 2</a>
+                    </li>
+                  </ul>
+                </div>
+              </div><!-- /.card-header -->
+              <div class="card-body" style="margin: 40px 20px 0px 20px">
+                  <img id="seat_image" style="width:100%;height:300px;" src="../static/img/aG_bG_Zoom.png">
+              </div><!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+
+            <!-- ABOUT US -->
+            <div class="card direct-chat direct-chat-primary" style="height: 357px;">
+              <!-- /.card-header -->
+              <div class="card-body">
+                <!-- Conversations are loaded here -->
+                <div class="direct-chat-messages">
+                  <!-- Message. Default to the left -->
+                  <div class="direct-chat-msg">
+                    <div class="direct-chat-infos clearfix">
+                      <span class="direct-chat-name float-left">Sean Chai</span>
+                      <span class="direct-chat-timestamp float-right">23 Jan 5:37 pm</span>
+                    </div>
+                    <!-- /.direct-chat-infos -->
+                    <img class="direct-chat-img" src="{{url_for('static', filename="img/profile1.jpg") }}">
+                    <!-- /.direct-chat-img -->
+                    <div class="direct-chat-text">
+                        This dashboard provides real-time information true to the last 5 minutes at Robinson77. 
+                    </div>
+                    <!-- /.direct-chat-text -->
+                  </div>
+                  <!-- /.direct-chat-msg -->
+
+                  <!-- Message to the right -->
+                  <div class="direct-chat-msg right">
+                    <div class="direct-chat-infos clearfix">
+                      <span class="direct-chat-name float-right">Shawn Lee</span>
+                      <span class="direct-chat-timestamp float-left">23 Jan 6:10 pm</span>
+                    </div>
+                    <!-- /.direct-chat-infos -->
+                    <img class="direct-chat-img" src="{{url_for('static', filename="img/profile2.png") }}" alt="message user image">
+                    <!-- /.direct-chat-img -->
+                    <div class="direct-chat-text">
+                        Get Live updates via telegram   - <a style="color:white;" href="https://telegram.me/NTUC_Occupancy_bot" target="_blank"><u>77Robinson Occupancy Bot
+                                                      </u></a>    - Just type -  <strong>/start</strong> to view current Occupancy
+                    </div>
+                    <!-- /.direct-chat-text -->
+                  </div>
+                  <!-- /.direct-chat-msg -->
+
+                  <!-- Message. Default to the left -->
+                  <div class="direct-chat-msg">
+                    <div class="direct-chat-infos clearfix">
+                      <span class="direct-chat-name float-left">Sean Chai</span>
+                      <span class="direct-chat-timestamp float-right">23 Jan 5:37 pm</span>
+                    </div>
+                    <!-- /.direct-chat-infos -->
+                    <img class="direct-chat-img" src="{{url_for('static', filename="img/profile1.jpg") }}">
+                    <!-- /.direct-chat-img -->
+                    <div class="direct-chat-text">
+                        For feedback or general enquiries, please contact <a href="https://telegram.me/q_xiang" target="_blank"><u>@q_xiang</u></a> or 
+                        <a href="https://telegram.me/Josephkoh@Josephkoh" target="_blank"><u>@JosephKoh</u></a> via Telegram
+                    </div>
+                    <!-- /.direct-chat-text -->
+                  </div>
+                  <!-- /.direct-chat-msg -->
+                </div>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+
+          </section>
+          <!-- LEFT COL -->
+
+          <!-- RIGHT COL (We are only adding the ID to make the widgets sortable)-->
+          <section class="col-lg-4 connectedSortable">
+
+            <!-- MEETING ROOM SCHEDULE -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title"><i class="far fa-calendar mr-1"></i>&nbsp;HERMAN HOLLERITH Meeting Room Schedule</h3>
+                
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body clearfix">
+                <h4>Friday, 3 April 2020 <button type="button" class="btn btn-info float-right" data-toggle="modal" data-target="#bookRoom"><i class="fas fa-plus"></i> Book Room</button></h4>
+                
+                <div id="day-schedule"></div>
+
+                <!-- Modal -->
+                <div id="bookRoom" class="modal fade" role="dialog">
+                  <div class="modal-dialog modal-lg">
+                    <!-- Modal content-->
+                    <div class="modal-content" >
+                      <div class="modal-header clearfix">
+                        <h4 class="modal-title" style="float:left"><b>Make a Booking for HERMAN HOLLERITH Meeting Room</b></h4>
+                        <button type="button" class="close" data-dismiss="modal" style="float:right">&times;</button>
+                      </div>
+
+                      <div class="modal-body" style="padding: 20px 50px">
+                        <table>
+                          <tr>
+                            <td>Creator:</td>
+                            <td>Bob Tan (bob_tan@ntucenterprise.sg)</td>
+                          </tr>
+                          <tr>
+                            <td>Date:</td>
+                            <td>Friday, 3 April 2020</td>
+                          </tr>
+                          <tr>
+                            <td>Start Time:</td>
+                            <td>18:00</td>
+                          </tr>
+                          <tr>
+                            <td>End Time:</td>
+                            <td>19:00</td>
+                          </tr>
+                        </table>
+                      </div>
+
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-info" data-dismiss="modal">Confirm Booking</button>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+
+          </section>
+          <!-- RIGHT COL -->
+        </div>
+        <!-- /.row (main row) -->
+      </div><!-- /.container-fluid -->
+
+
+      <!-- TELEGRAM
+      <div class="col-12">
+        
+      </div> -->
+    </section>
+    <!-- /.content -->
+  </div>
+
+
+
+
+
+
+  <!-- /.content-wrapper -->
+  <footer class="main-footer">
+    <strong>Copyright &copy; 2020<a href="#">NTUC</a>.</strong>
+    All rights reserved.
+    <div class="float-right d-none d-sm-inline-block">
+      <b>Version</b> 1.0 Alpha
+    </div>
+  </footer>
+
+  <!-- Control Sidebar -->
+  <aside class="control-sidebar control-sidebar-dark">
+    <!-- Control sidebar content goes here -->
+  </aside>
+  <!-- /.control-sidebar -->
+</div>
+<!-- ./wrapper -->
+
+
+
+<script>
+
+
+
+
+function loadGraphs() {
+  realTimeSeats()
+  loadDonut()
+}
+
+setInterval(function(){  
+  realTimeSeats()
+}, 30000);
+
+
+
+function realTimeSeats() {
+        var xhttp  = new XMLHttpRequest();
+        var site = "/get_seats"
+        xhttp.open("GET", site, true);
+        xhttp.onload = function() {
+            if (this.status == 200 && this.readyState == 4 ) {
+                var result = JSON.parse(this.responseText)
+                var occupied_seats = result[0]
+                var empty_seats = result[1]
+                var hogged_seats = result[2]
+                var aColor = result[3]
+                var bColor = result[4]
+
+                document.getElementById("empty_seats").innerHTML = empty_seats
+                document.getElementById("occupied_seats").innerHTML = occupied_seats
+                document.getElementById("hogged_seats").innerHTML = hogged_seats
+                document.getElementById("seat_image").src = "../static/img/a" + aColor +  "_b" + bColor  + "_Zoom.png"
+              
+            } else {
+                alert("failed to load graphs, please refresh page, if problem still persists, contact administrator @Iamlimzy on telegram")
+            }
+        }
+        xhttp.send()
+}
+
+
+    function log_in() {
+    var password = prompt("Please enter password");
+    if (password == "admin") {
+        var xhttp  = new XMLHttpRequest();
+        var site = "/process_login"
+        xhttp.open("POST", site, true);
+        xhttp.onload = function() {
+            if (this.status == 200 && this.readyState == 4 ) {
+             window.location.href = '/home'; //relative to domain
+            } else {
+            }
+        }
+        xhttp.send()
+    } 
+}
+</script>
+
+
+
+
+<!-- jQuery -->
+<script src="{{url_for('static', filename="plugins/jquery/jquery.min.js") }}"></script>
+<!-- jQuery UI 1.11.4 -->
+<script src="{{url_for('static', filename="plugins/jquery-ui/jquery-ui.min.js")}}"></script>
+<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+<script>
+  $.widget.bridge('uibutton', $.ui.button)
+</script>
+<!-- Bootstrap 4 -->
+<script src="{{url_for('static', filename="plugins/bootstrap/js/bootstrap.bundle.min.js")}}"></script>
+<!-- Sparkline -->
+<script src="{{url_for('static', filename="plugins/sparklines/sparkline.js")}}"></script>
+<!-- JQVMap -->
+<!-- jQuery Knob Chart -->
+<script src="{{url_for('static', filename="plugins/jquery-knob/jquery.knob.min.js")}}"></script>
+<!-- daterangepicker -->
+<script src="{{url_for('static', filename="plugins/moment/moment.min.js")}}"></script>
+<!-- Tempusdominus Bootstrap 4 -->
+<script src="{{url_for('static', filename="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js")}}"></script>
+<!-- Summernote -->
+<script src="{{url_for('static', filename="plugins/summernote/summernote-bs4.min.js")}}"></script>
+<!-- overlayScrollbars -->
+<script src="{{url_for('static', filename="plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js")}}"></script>
+<!-- AdminLTE App -->
+<script src={{url_for('static', filename="dist/js/adminlte.js")}}"></script>
+<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+<script src={{url_for('static', filename="dist/js/pages/dashboard.js")}}"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="{{url_for('static', filename="dist/js/demo.js")}}"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<script src="{{url_for('static', filename="js/charts.js")}}"></script>
+<script src="{{url_for('static', filename="schedule/src/index.js")}}"></script>
+<script>
+  $(document).ready(function() {
+    var meetings = []
+    var xhttp  = new XMLHttpRequest();
+    var site = "/get_schedule"
+    xhttp.open("GET", site, true);
+    xhttp.onload = function() {
+      if (this.status == 200 && this.readyState == 4 ) {
+          var result = JSON.parse(this.responseText)
+         
+          for (var i=0; i<result.length; i++){
+            var meeting_info = {}
+            meeting_info["id"] = result[i]["id"]
+            meeting_info["htmlLink"] = result[i]["htmlLink"]
+            meeting_info["creator"] = result[i]["creator"]["email"]
+            meeting_info["startTime"] = result[i]["start"]["dateTime"].substr(11,5)
+            meeting_info["endTime"] = result[i]["end"]["dateTime"].substr(11,5)
+            meetings.push(meeting_info)
+          }
+      }
+    }
+    xhttp.send()
+
+    let schedule = []
+    for (var i=0; i<meetings.length; i++) {
+      var duration = [item["startTime"], item["endTime"]];
+      schedule.push(duration)
+    }
+
+    console.log(schedule)
+    // var new_schedule = schedule.push(["14:00", "15:00"])
+    
+    $("#day-schedule").dayScheduleSelector({
+      days        : [0], 
+      stringDays  : [""],
+      startTime   : '09:00',
+      endTime     : '20:00',
+      interval    : 30
+    });
+    $("#day-schedule").on('selected.artsy.dayScheduleSelector', function (e, selected) {
+      console.log(selected);
+    })
+    $("#day-schedule").data('artsy.dayScheduleSelector').deserialize({
+      '0': [['16:00', '17:00'], ['11:00', '11:30'], ['17:00', '17:30']],
+      // '0': schedule,
+    });
+  });
+
+  // (function ($) {
+    
+  // })($);
+
+</script>
+
+</body>
+</html>

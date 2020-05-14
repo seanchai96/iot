@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  <title>Seat Utilization Analytics | Dashboard</title>
+  <!-- Tell the browser to be responsive to screen width -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="{{url_for('static', filename="plugins/fontawesome-free/css/all.min.css")}}">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <!-- Tempusdominus Bbootstrap 4 -->
+  <link rel="stylesheet" href="{{url_for('static', filename="plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css")}}">
+
+  
+  <!-- iCheck -->
+  <link rel="stylesheet" href="{{url_for('static', filename="plugins/icheck-bootstrap/icheck-bootstrap.min.css")}}">
+  <!-- JQVMap -->
+  <link rel="stylesheet" href="{{url_for('static', filename="plugins/jqvmap/jqvmap.min.css")}}">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{{url_for('static', filename="dist/css/adminlte.min.css")}}">
+  <!-- overlayScrollbars -->
+  <link rel="stylesheet" href="{{url_for('static', filename="plugins/overlayScrollbars/css/OverlayScrollbars.min.css")}}">
+  <!-- Daterange picker -->
+  <link rel="stylesheet" href="{{url_for('static', filename="plugins/daterangepicker/daterangepicker.css")}}">
+  <!-- summernote -->
+  <link rel="stylesheet" href="{{url_for('static', filename="plugins/summernote/summernote-bs4.css")}}">
+  <!-- Google Font: Source Sans Pro -->
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+</head>
+<body class="hold-transition sidebar-mini layout-fixed" onload="loadGraphs()">
+<div class="wrapper">
+
+
+
+  <!-- Main Sidebar Container -->
+  <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Sidebar Menu -->
+      <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+          <!-- Add icons to the links using the .nav-icon class
+               with font-awesome or any other icon font library -->
+          <li class="nav-item has-treeview menu-open">
+            <a href="/home" class="nav-link">
+              <i class="nav-icon fas fa-tachometer-alt"></i>
+              <p>
+                Overview
+                <i class="right fas fa-restaurant-chair-left"></i>
+              </p>
+            </a>
+
+          </li>
+         
+         
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link active">
+              <i class="nav-icon fas fa-chart-pie"></i>
+              <p>
+                Hot Desk
+              </p>
+            </a>
+          </li>
+          <li class="nav-item has-treeview">
+            <a href="/meetingroom" class="nav-link">
+              <i class="nav-icon fas fa-tree"></i>
+              <p>
+                Meeting Rooms
+              </p>
+            </a>
+         
+          </li>
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-edit"></i>
+              <p>
+                Analytics
+              </p>
+            </a>
+           
+          </li>
+          <li class="nav-item has-treeview">
+            <a href="/about" class="nav-link">
+              <i class="nav-icon fas fa-table"></i>
+              <p>
+                About Us
+              </p>
+            </a>
+          </li>
+          
+          <li class="nav-header">LABELS</li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon far fa-circle text-danger"></i>
+              <p class="text">Occupied</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon far fa-circle text-warning"></i>
+              <p>Seat Hogging</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon far fa-circle text-success"></i>
+              <p>Empty</p>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <!-- /.sidebar-menu -->
+    </div>
+    <!-- /.sidebar -->
+  </aside>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0 text-dark">Hot Desk Analytics</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="#">HotDesking</a></li>
+              <li class="breadcrumb-item active">Dashboard</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <!-- Small boxes (Stat box) -->
+        <div class="row">
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-info">
+              <div class="inner">
+                <h3>150</h3>
+
+                <p>Average Occupied Time</p>
+              </div>
+              <div class="icon">
+                <i class="fas fa-clock"></i>
+              </div>
+              <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-success">
+              <div class="inner">
+                <h3 id="empty_seats">0</h3>
+
+                <p>Empty Seats</p>
+              </div>
+              <div class="icon">
+                <i class="fas fa-chair"></i>
+              </div>
+              <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-warning">
+              <div class="inner">
+                <h3 id="hogged_seats">0</h3>
+
+                <p>Hogged Seats</p>
+              </div>
+              <div class="icon">
+                <i class="fas fa-chair"></i>
+              </div>
+              <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-danger">
+              <div class="inner">
+                <h3 id="occupied_seats">0</h3>
+
+                <p>Occupied Seats</p>
+              </div>
+              <div class="icon">
+                <i class="fas fa-chair"></i>
+              </div>
+              <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+        </div>
+        <!-- /.row -->
+        <!-- Main row -->
+        <div class="row">
+          <!-- Left col -->
+          <section class="col-lg-7 connectedSortable">
+            <!-- Custom tabs (Charts with tabs)-->
+            <div class="card bg-light">
+              <div class="card-header">
+                <h3 class="card-title">
+                  <i class="fas fa-chair mr-1"></i>
+                  Seat Utilization 
+                </h3>
+                <div class="card-tools">
+                  <ul class="nav nav-pills ml-auto">
+                    <li class="nav-item">
+                      <a class="nav-link active" href="#map" data-toggle="tab">Map</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#map2" data-toggle="tab">Table</a>
+                    </li>
+                  </ul>
+                </div>
+              </div><!-- /.card-header -->
+
+              <div class="card-body">
+                <div class="tab-content p-0">
+                      <div class="chart tab-pane active" id="map">
+                        <img id="seat_image" style="width:100%;height:300px;" src="../static/img/LayoutSingleGreen.png">
+                      </div>
+                      <div class="chart tab-pane" id="map2" 
+                          style="position: relative; height: 300px;">
+                          PLACEHOLDER TEXT
+                      </div>  
+                </div>
+              </div><!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+
+
+
+
+
+
+
+
+
+<div class="card bg-gradient-light">
+              <div class="card-header">
+                <h3 class="card-title">
+                  <i class="fas fa-chart-line mr-1"></i>
+                  Seat Utilization by
+                </h3>
+                <div class="card-tools">
+                  <ul class="nav nav-pills ml-auto">
+                    <li class="nav-item">
+                      <a class="nav-link active" href="#daily_line" data-toggle="tab">Today</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#weekly_line" data-toggle="tab">Past Week</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#all_line" data-toggle="tab">All-Time</a>
+                    </li>
+                  </ul>
+                </div>
+              </div><!-- /.card-header -->
+              <div class="card-body">
+                <div class="tab-content p-0">
+                  
+                  <!-- Morris chart - Sales -->
+                  <div class="chart tab-pane active" id="daily_line"
+                       style="position: relative; height: 320px;">
+                       <button type="button" id="emp_line" value="false" onclick=getClick(this)>Empty</button>
+                       <button type="button" id="occ_line" value="false" onclick=getClick(this)>Occupied</button>
+                       <button type="button" id="hog_line" value="false" onclick=getClick(this)>Hog</button>
+                       <canvas id="line-chart" width="500" height="300"></canvas>
+                   </div>
+                  <div class="chart tab-pane" id="weekly_line" 
+                      style="position: relative; height: 320px;">
+                      <button type="button" id="emp_line_w" value="false" onclick=getClickw(this)>Empty</button>
+                       <button type="button" id="occ_line_w" value="false" onclick=getClickw(this)>Occupied</button>
+                       <button type="button" id="hog_line_w" value="false" onclick=getClickw(this)>Hog</button>
+                       <canvas id="line-chart-weekly" width="500" height="300"></canvas>
+                  </div>  
+                  <div class="chart tab-pane" id="all_line" 
+                      style="position: relative; height: 320px;">
+                      <button type="button" id="emp_line_all" value="false" onclick=getClickall(this)>Empty</button>
+                       <button type="button" id="occ_line_all" value="false" onclick=getClickall(this)>Occupied</button>
+                       <button type="button" id="hog_line_all" value="false" onclick=getClickall(this)>Hog</button>
+                       <canvas id="line-chart-all" width="500" height="300"></canvas>
+                  </div>  
+                </div>
+              </div><!-- /.card-body -->
+            </div>
+
+       
+
+          </section>
+          <!-- /.Left col -->
+          <!-- right col (We are only adding the ID to make the widgets sortable)-->
+          <section class="col-lg-5 connectedSortable">
+
+            <!-- Map card -->
+            <div class="card bg-gradient-light">
+              <div class="card-header border-0">
+                <h3 class="card-title">
+                  <i class="fas fa-chart-pie mr-1"></i>
+                  Real Time Seat Occupancy
+                </h3>
+
+              </div>
+              <div class="card-body">
+                <div id="world-map_donut" style="height: 250px; width: 100%;">
+                    <canvas id="doughnut"></canvas>
+                </div>
+              </div>
+              <!-- /.card-body-->
+
+            </div>
+            <!-- /.card -->
+
+            <!-- solid sales graph -->
+
+
+            
+             <div class="card bg-light">
+              <div class="card-header">
+                <h3 class="card-title">
+                  <i class="fas fa-chart-bar mr-1"></i>
+                  Seat Utilization
+                </h3>
+                <div class="card-tools">
+                  <ul class="nav nav-pills ml-auto">
+                    <li class="nav-item">
+                      <a class="nav-link active" href="#plot1" data-toggle="tab">Past Week</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#plot2" data-toggle="tab">All-Time</a>
+                    </li>
+                  </ul>
+                </div>
+              </div><!-- /.card-header -->
+
+              <div class="card-body">
+                <div class="tab-content p-0">
+                      <div class="chart tab-pane active" id="plot1"
+                          style="position: relative; height: 300px;">
+                          <canvas id="stacked-bar-cur"></canvas>
+                      </div>
+                      <div class="chart tab-pane" id="plot2" 
+                          style="position: relative; height: 300px;">
+                          <canvas id="stacked-bar"></canvas>
+                      </div>  
+                </div>
+              </div><!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+
+            <div class="card bg-gradient-light">
+              <div class="card-header border-0">
+                <h3 class="card-title">
+                  <i class="fas fa-chart-line mr-1"></i>
+                  Daily Seat Occupancy
+                </h3>
+
+              </div>
+              <div class="card-body">
+                <div style="height: 250px; width: 100%;">
+                    <canvas id="secondline"></canvas>
+                </div>
+              </div>
+              <!-- /.card-body-->
+
+
+
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body pt-0">
+                <!--The calendar -->
+                <div id="calendar" style="width: 100%"></div>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+          </section>
+          <!-- right col -->
+        </div>
+        <!-- /.row (main row) -->
+      </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+  <footer class="main-footer">
+    <strong>Copyright &copy; 2020<a href="#">NTUC</a>.</strong>
+    All rights reserved.
+    <div class="float-right d-none d-sm-inline-block">
+      <b>Version</b> 1.0 Alpha
+    </div>
+  </footer>
+
+  <!-- Control Sidebar -->
+  <aside class="control-sidebar control-sidebar-dark">
+    <!-- Control sidebar content goes here -->
+  </aside>
+  <!-- /.control-sidebar -->
+</div>
+<!-- ./wrapper -->
+
+
+
+<script src="{{url_for('static', filename="js/charts.js")}}"></script>
+
+<script>
+
+function loadGraphs() {
+  realTimeSeats()
+  loadDonut()
+  loadLineChart(false,false,false)
+  loadStackedBarChart()
+  loadLineChartWeekly(false,false,false)
+  loadStackedBarChartCur()
+  loadLineChartAll(false,false,false)
+  plot_secondline()
+}
+
+setInterval(function(){  
+  realTimeSeats()
+  loadDonut()
+}, 30000);
+
+
+
+function realTimeSeats() {
+        var xhttp  = new XMLHttpRequest();
+        var site = "/get_seats"
+        xhttp.open("GET", site, true);
+        xhttp.onload = function() {
+            if (this.status == 200 && this.readyState == 4 ) {
+                var result = JSON.parse(this.responseText)
+                var occupied_seats = result[0]
+                var empty_seats = result[1]
+                var hogged_seats = result[2]
+                var aColor = result[3]
+                var bColor = result[4]
+
+                document.getElementById("empty_seats").innerHTML = empty_seats
+                document.getElementById("occupied_seats").innerHTML = occupied_seats
+                document.getElementById("hogged_seats").innerHTML = hogged_seats
+                document.getElementById("seat_image").src = "../static/img/a" + aColor +  "_b" + bColor  + "_Zoom.png"
+                console.log(document.getElementById("seat_image").src)
+              
+            } else {
+                alert("failed to load graphs, please refresh page, if problem still persists, contact administrator @Iamlimzy on telegram")
+            }
+        }
+        xhttp.send()
+}
+
+
+                   
+
+        
+</script>
+
+
+
+
+<!-- jQuery -->
+<script src="{{url_for('static', filename="plugins/jquery/jquery.min.js") }}"></script>
+<!-- jQuery UI 1.11.4 -->
+<script src="{{url_for('static', filename="plugins/jquery-ui/jquery-ui.min.js")}}"></script>
+<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+<script>
+  $.widget.bridge('uibutton', $.ui.button)
+</script>
+<!-- Bootstrap 4 -->
+<script src="{{url_for('static', filename="plugins/bootstrap/js/bootstrap.bundle.min.js")}}"></script>
+<!-- Sparkline -->
+<script src="{{url_for('static', filename="plugins/sparklines/sparkline.js")}}"></script>
+<!-- JQVMap -->
+<!-- jQuery Knob Chart -->
+<script src="{{url_for('static', filename="plugins/jquery-knob/jquery.knob.min.js")}}"></script>
+<!-- daterangepicker -->
+<script src="{{url_for('static', filename="plugins/moment/moment.min.js")}}"></script>
+<!-- Tempusdominus Bootstrap 4 -->
+<script src="{{url_for('static', filename="plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js")}}"></script>
+<!-- Summernote -->
+<script src="{{url_for('static', filename="plugins/summernote/summernote-bs4.min.js")}}"></script>
+<!-- overlayScrollbars -->
+<script src="{{url_for('static', filename="plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js")}}"></script>
+<!-- AdminLTE App -->
+<script src={{url_for('static', filename="dist/js/adminlte.js")}}"></script>
+<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+<script src={{url_for('static', filename="dist/js/pages/dashboard.js")}}"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="{{url_for('static', filename="dist/js/demo.js")}}"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+
+</body>
+</html>

@@ -1,5 +1,5 @@
 # iot
-Application for R77 Office Space Utilisation
+IoT system that tracks Office Space Utilisation at R77 
 
 ## IoT system that tracks Office Space Utilisation at R77 
 

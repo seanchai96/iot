@@ -161,7 +161,7 @@
             <!-- small box -->
             <div class="small-box bg-success">
               <div class="inner">
-                <h3 id="empty_seats">0</h3>
+                <h3 id="empty_seats">2</h3>
 
                 <p>Empty Seats</p>
               </div>
@@ -230,7 +230,7 @@
               <div class="card-body">
                 <div class="tab-content p-0">
                       <div class="chart tab-pane active" id="map">
-                        <img id="seat_image" style="width:100%;height:300px;" src="../static/img/LayoutSingleGreen.png">
+                        <img id="seat_image" style="width:100%;height:300px;" src="../static/img/aG_bG_Zoom.png">
                       </div>
                       <div class="chart tab-pane" id="map2" 
                           style="position: relative; height: 300px;">
@@ -456,7 +456,7 @@ function realTimeSeats() {
                 console.log(document.getElementById("seat_image").src)
               
             } else {
-                alert("failed to load graphs, please refresh page, if problem still persists, contact administrator @Iamlimzy on telegram")
+                alert("Graphs not loading as AWS RDS is not running.")
             }
         }
         xhttp.send()

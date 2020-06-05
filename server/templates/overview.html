@@ -175,7 +175,7 @@
             <!-- small box -->
             <div class="small-box bg-success">
               <div class="inner">
-                <h3 id="empty_seats">NA</h3>
+                <h3 id="empty_seats">2</h3>
 
                 <p>Empty Seats</p>
               </div>
@@ -189,7 +189,7 @@
             <!-- small box -->
             <div class="small-box bg-warning">
               <div class="inner">
-                <h3 id="hogged_seats">NA</h3>
+                <h3 id="hogged_seats">0</h3>
 
                 <p>Hogged Seats</p>
               </div>
@@ -203,7 +203,7 @@
             <!-- small box -->
             <div class="small-box bg-danger">
               <div class="inner">
-                <h3 id="occupied_seats">NA</h3>
+                <h3 id="occupied_seats">0</h3>
 
                 <p>Occupied Seats</p>
               </div>
@@ -472,7 +472,7 @@ function realTimeSeats() {
                 document.getElementById("seat_image").src = "../static/img/a" + aColor +  "_b" + bColor  + "_Zoom.png"
               
             } else {
-                alert("failed to load graphs, please refresh page, if problem still persists, contact administrator @Iamlimzy on telegram")
+                alert("Graphs not loading as AWS RDS is not running.")
             }
         }
         xhttp.send()

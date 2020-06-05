@@ -17,7 +17,7 @@ app.config['SECRET_KEY'] = "mysecretkey"
 @app.route("/")                  
 def hello():         
     #session['admin'] = False             
-    return render_template("user.html")    
+    return render_template("overview.html")    
 
 # @app.route("/user")
 # def user():
@@ -26,7 +26,7 @@ def hello():
 @app.route("/process_login" , methods=['POST'])
 def process_login():
     #session['admin'] = True
-    return redirect("/home")
+    return redirect("/hotdesk")
 
 @app.route("/home")
 def home(): 
